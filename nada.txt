@@ -1,0 +1,207 @@
+#include <iostream>
+#include <string>
+#include<fstream>
+#include<sstream>
+#include<map>
+#include<vector>
+using namespace std;
+map<string, vector<string>> registers;
+string tobinary(string decimal);
+multimap<int,string>insta_addresses;
+map<int, int>memory_address_values;
+void lw(string source, string destination, string offset,int address) {
+	int resgister_address_value;
+	for (auto i : registers) {
+		if (i.first == destination)
+			resgister_address_value = stoi(i.second[0]);
+	}
+	int destination_address_value = stoi(offset) + resgister_address_value;
+    
+	for (auto i : memory_address_values) {
+		if (i.first == address)
+			i.second = destination_address_value;
+	}
+
+}
+
+//void printMap()
+//{
+//	for (int i = 0; i < 32; i++)
+//	{
+//		auto it = registers.find("x" + to_string(i));
+//
+//		cout << it->first << " = " << it->second[0] << it->second[1] << it->second[2] << endl;
+//	}
+//}
+
+//void Add(string rd, string rs1, string rs2)
+//{
+//	auto it = registers.find(rs1);
+//	int temp1 = stoi(it->second[0]);
+//	it = registers.find(rs2);
+//	int temp2 = stoi(it->second[0]);
+//	int temp3 = temp2 + temp1;
+//	it = registers.find(rd);
+//	it->second[0] = to_string(temp3);
+//	it->second[1] = "0b" + tobinary(to_string(temp3));
+//	//it->second[2] = toHexa(temp3);
+//	printMap();
+//}
+//void sub(string rd, string rs1, string rs2)
+//{
+//	auto it = registers.find(rs1);
+//	int temp1 = stoi(it->second[0]);
+//	it = registers.find(rs2);
+//	int temp2 = stoi(it->second[0]);
+//	int temp3 = temp2 - temp1;
+//	it = registers.find(rd);
+//	it->second[0] = to_string(temp3);
+//	it->second[1] = "0b" + tobinary(to_string(temp3));
+//	//it->second[2] = toHexa(temp3);
+//	printMap();
+//}
+//void anding(string rd, string rs1, string rs2)
+//{
+//	auto it = registers.find(rs1);
+//	int temp1 = stoi(it->second[0]);
+//	it = registers.find(rs2);
+//	int temp2 = stoi(it->second[0]);
+//	int temp3 = temp2 & temp1;
+//	it = registers.find(rd);
+//	it->second[0] = to_string(temp3);
+//	it->second[1] = "0b" + tobinary(to_string(temp3));
+//	//it->second[2] = toHexa(temp3);
+//	printMap();
+//}
+/*void oring(string rd, string rs1, string rs2)
+{
+	auto it = registers.find(rs1);
+	int temp1 = it->second[0];
+	it = registers.find(rs2);
+	int temp2 = it->second[0];
+	int temp3 = temp2 | temp1;
+	it = registers.find(rd);
+	it->second[0] = temp3;
+	it->second[1] = tobinary(temp3);
+	//it->second[2] = toHexa(temp3);
+	printMap();
+}
+void xoring(string rd, string rs1, string rs2)
+{
+	auto it = registers.find(rs1);
+	int temp1 = it->second[0];
+	it = registers.find(rs2);
+	int temp2 = it->second[0];
+	int temp3 = temp2 ^ temp1;
+	it = registers.find(rd);
+	it->second[0] = temp3;
+	it->second[1] = tobinary(temp3);
+	//it->second[2] = toHexa(temp3);
+	printMap();
+}*/
+//string tobinary(string num) //convert num to int 
+//{
+//	int r, i = 0, s = 0, bin = 0;
+//	int arr[32] = { 0 };
+//	while (num != 0)
+//	{
+//		r = num % 2;
+//		arr[i++] = r;
+//		num /= 2;
+//	}
+//	for (int j = i - 1; j >= 0; j--)
+//	{
+//		arr[s] = arr[j];
+//		s++;
+//	}
+//	for (int i = 0; i > 32; i++) {
+//		int val = 1;
+//		for (int j = 0; j < i; j++) {
+//			val *= 10;
+//		}
+//		bin += arr[i] * val;
+//	}
+//	return bin;
+//
+//}
+int main()
+{
+	string input_file_name;
+	int address,pc=0, number_of_instructions;
+	ifstream code,address_file;
+	string instruction, line;
+
+	//inisalize  map
+	for (int i = 0; i < 32; i++)
+	{
+		string name = "x" + to_string(i);
+		registers.insert(pair < string, vector<string>>(name, { "0","0b" + tobinary("0"),"0" }));
+	}
+
+	cout << "Enter Assembly Program File" << endl;
+	cin >> input_file_name;
+	cout << "Enter the starting address: " << endl;
+	cin >> address;
+	cout << "Enter the number of instructions: " << endl;
+	cin >> number_of_instructions;
+	istringstream ss(instruction);
+	string token;
+	vector<string>myString;
+
+	    //initialize the map that contains the address of instructions 
+     	code.open(input_file_name);
+		for (int i=0;i<number_of_instructions;i++)
+		{ 
+			getline(code, line);
+			insta_addresses.insert({ address + pc,line });
+			pc += 4;
+				
+	    }
+		
+		//initialize the map that contains the value of addresses of instructions 
+		address_file.open("address.txt");
+		while (!address_file.eof()) {
+			string address,value;
+			getline(address_file, line);
+			stringstream s(line);
+			getline(s, address, ',');
+			getline(s, value, ',');
+			cout << address << " " << value<<endl;
+			memory_address_values.insert({ stoi(address),stoi(value) });
+
+		}
+		for (auto i : insta_addresses) {
+			string source, destination, offset;
+			int load_address;
+			if (i.second.substr(0, line.find_first_of(" ", 0)) == "Lw") {
+				load_address = i.first;
+				int j = 0, i = 0;
+				std::string::size_type n = 0;
+				n = line.find_first_not_of(" \t", n);
+				n = line.find_first_of(" \t", n);
+				line.erase(0, line.find_first_not_of(" \t", n));
+				stringstream s(line);
+				getline(s, source, ',');
+				getline(s, destination, ',');
+				int pos = destination.find("(");
+				offset = destination.substr(0, pos);
+				destination.erase(0, pos);
+				while (i < destination.size()) {
+					if (destination[i] == '(' || destination[i] == ')') {
+						destination.erase(i, 1);
+					}
+					else {
+						++i;
+					}
+				}
+				lw(source, destination, offset, load_address);
+			}
+			
+
+	    }
+		
+}
+
+
+
+
