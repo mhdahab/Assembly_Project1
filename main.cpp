@@ -4,6 +4,7 @@
 #include<sstream>
 #include<map>
 #include<vector>
+#include <cstdlib>
 using namespace std;
 map<string, vector<string>> registers;
 multimap<int, string>insta_addresses;
@@ -81,6 +82,9 @@ string tohexa(string value)
 			res = m[num % 16] + res;
 			num /= 16;
 		}
+
+		while (res.length() != 8)
+			res = "0" + res;
 	}
 	// if num<0, we need to use the elaborated
 	// trick above, lets see this
@@ -94,6 +98,8 @@ string tohexa(string value)
 			res = m[n % 16] + res;
 			n /= 16;
 		}
+		while (res.length() != 8)
+			res = "f" + res;
 	}
 
 	return res;
@@ -118,6 +124,7 @@ void printMap()
 
 
 	system("pause");
+	
 }
 void Add(string rd, string rs1, string rs2)
 {
@@ -237,9 +244,9 @@ void ANDI (string rd, string rs1, string imm)
 
 }
 void lw(string source, string destination, string offset) {
-	int resgister_address_value =0;
+	int resgister_address_value;
 	for (auto i : registers) {
-		if (i.first == destination)
+		if (i.first == source)
 		{
 			resgister_address_value = stoi(i.second[0]);
 			break;
@@ -247,7 +254,7 @@ void lw(string source, string destination, string offset) {
 
 	}
 	int destination_address_value = stoi(offset) + resgister_address_value;
-	int value = 0 ; 
+	int value; 
 	for (auto i : memory_address_values) {
 		if (i.first == destination_address_value)
 		{
@@ -255,15 +262,100 @@ void lw(string source, string destination, string offset) {
 			break;
 		}
 	}
-	auto it = registers.find(source);
+	auto it = registers.find(destination);
 	it->second[0] = to_string(value);
 	printMap();
 }
+void SLT(string rd, string rs1, string rs2)
+{
+	auto it = registers.find(rs1);
+	int temp1 = stoi(it->second[0]);
+	it = registers.find(rs2);
+	int temp2 = stoi(it->second[0]);
+	int temp3;
+	if (temp1 < temp2)
+		temp3 = 1;
+	else
+		temp3 = 0;
+	it = registers.find(rd);
+	it->second[0] = to_string(temp3);
+	it->second[1] = "0b" + tobinary(to_string(temp3));
+	it->second[2] = "0x" + tohexa(to_string(temp3));
+	printMap();
+}
+void SLTU(string rd, string rs1, string rs2)
+{
 
-
+	auto it = registers.find(rs1);
+	int temp1 = stoi(it->second[0]);
+	it = registers.find(rs2);
+	int temp2 = stoi(it->second[0]);
+	int temp3;
+	if (rs1 == "x0")
+	{
+		if (temp2 != 0)
+			temp3 = 1;
+		else
+			temp3 = 0;
+	}
+	else
+	{
+		if (abs(temp1) < abs(temp2))
+			temp3 = 1;
+		else
+			temp3 = 0;
+	}
+	it = registers.find(rd);
+	it->second[0] = to_string(temp3);
+	it->second[1] = "0b" + tobinary(to_string(temp3));
+	it->second[2] = "0x" + tohexa(to_string(temp3));
+	printMap();
+}
+void SLTI(string rd, string rs1, string imm)
+{
+	auto it = registers.find(rs1);
+	int temp1 = stoi(it->second[0]);
+	int temp2 = stoi(imm);
+	int temp3;
+	if (temp1 < temp2)
+		temp3 = 1;
+	else
+		temp3 = 0;
+	it = registers.find(rd);
+	it->second[0] = to_string(temp3);
+	it->second[1] = "0b" + tobinary(to_string(temp3));
+	it->second[2] = "0x" + tohexa(to_string(temp3));
+	printMap();
+}
+void SLTIU(string rd, string rs1, string imm)
+{
+	auto it = registers.find(rs1);
+	int temp1 = stoi(it->second[0]);
+	int temp2 = stoi(imm);
+	int temp3;
+	if (imm == "1")
+	{
+		if (temp1 == 0)
+			temp3 = 1;
+		else
+			temp3 = 0;
+	}
+	else
+	{
+		if (abs(temp1) < abs(temp2))
+			temp3 = 1;
+		else
+			temp3 = 0;
+	}
+	it = registers.find(rd);
+	it->second[0] = to_string(temp3);
+	it->second[1] = "0b" + tobinary(to_string(temp3));
+	it->second[2] = "0x" + tohexa(to_string(temp3));
+	printMap();
+}
 int main()
 {
-	string input_file_name , program_file_name;
+	string input_file_name, program_file_name;
 	int address;
 	ifstream code, address_file;
 	string instruction, line;
@@ -272,7 +364,7 @@ int main()
 	for (int i = 0; i < 32; i++)
 	{
 		string name = "x" + to_string(i);
-		registers.insert(pair < string, vector<string>>(name, { "0","0b"+tobinary("0"),"0x"+tohexa("0")}));
+		registers.insert(pair < string, vector<string>>(name, { "0","0b" + tobinary("0"),"0x" + tohexa("0") }));
 	}
 
 	//get user input
@@ -284,15 +376,10 @@ int main()
 	cin >> program_file_name;
 
 
-	//istringstream ss(instruction);
-	//string token;
-	//vector<string>myString;
-
 	//read and store instructions
 	code.open(input_file_name);
-	while (!code.eof())
+	while (getline(code, line))
 	{
-		getline(code, line);
 		insta_addresses.insert({ address ,line });
 		address += 4;
 	}
@@ -311,8 +398,9 @@ int main()
 	address_file.close();
 
 	//generate each instruction
-	for(auto it = insta_addresses.begin() ; it!= insta_addresses.end() ;it++)
+	for (auto it = insta_addresses.begin(); it != insta_addresses.end(); it++)
 	{
+		cout << endl;
 		cout << "Address Number : " << it->first << endl;
 		string line = it->second;
 		stringstream s(line);
@@ -397,16 +485,58 @@ int main()
 			ANDI(rd, rs1, imm);
 
 		}
+		else if (instruction == "SLT")
+		{
+			string rd, rs1, rs2;
+			getline(s, rd, ',');
+			getline(s, rs1, ',');
+			getline(s, rs2);
+			SLT(rd, rs1, rs2);
+
+		}
+		else if (instruction == "SLTU")
+		{
+			string rd, rs1, rs2;
+			getline(s, rd, ',');
+			getline(s, rs1, ',');
+			getline(s, rs2);
+			SLTU(rd, rs1, rs2);
+
+		}
+		else if (instruction == "SLTI")
+		{
+			string rd, rs1, imm;
+			getline(s, rd, ',');
+			getline(s, rs1, ',');
+			getline(s, imm);
+			SLTI(rd, rs1, imm);
+
+		}
+		else if (instruction == "SLTIU")
+		{
+		string rd, rs1, imm;
+		getline(s, rd, ',');
+		getline(s, rs1, ',');
+		getline(s, imm);
+		SLTIU(rd, rs1, imm);
+
+		}
 		else if (instruction == "LW")
 		{
 			string source, destination, offset;
 			getline(s, destination, ',');
 			getline(s, offset, '(');
-			getline(s, source,')');
+			getline(s, source, ')');
 			lw(source, destination, offset);
 
 		}
-		
+		else if (instruction == "FENCE" || instruction == "ECALL" || instruction == "EBREAK")
+			return 0;
+		else
+		{
+			cout << "Invalid Input : " << line << endl;
+			return 0;
+		}
 
 
 		//loop on each line 
@@ -414,4 +544,6 @@ int main()
 		//instruction -> call function 
 
 	}
+
+	return 0;
 }
