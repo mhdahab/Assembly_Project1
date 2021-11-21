@@ -26,31 +26,22 @@ map<int, int>memory_address_values;
 //map memory <int (address (2000) , int (value , -7)>
 
 
-string tobinary(string value) //not functioning 
+string decToBinary(string num)
 {
-	int num = stoi(value);
-	int r, i = 0, s = 0, bin = 0;
-	int arr[32] = { 0 };
-	while (num != 0)
-	{
-		r = num % 2;
-		arr[i++] = r;
-		num /= 2;
+	int n = stoi(num);
+	vector<string> bin;
+	string binary = "0";
+	for (int i = 31; i >= 0; i--) {
+		int k = n >> i;
+		if (k & 1)
+			bin.push_back("1");
+		else
+			bin.push_back("0");
 	}
-	for (int j = i - 1; j >= 0; j--)
-	{
-		arr[s] = arr[j];
-		s++;
-	}
-	for (int i = 0; i > 32; i++) {
-		int val = 1;
-		for (int j = 0; j < i; j++) {
-			val *= 10;
-		}
-		bin += arr[i] * val;
-	}
-	return to_string(bin);
+	for (int i = 0; i < bin.size(); i++)
+		binary += bin[i];
 
+	return binary;
 }
 string tohexa(string value)
 {
