@@ -13,6 +13,7 @@ map<int, int>memory_address_values;
 // create to_decimal function 
 //fill hexa and binary with zero
 
+//register[x5]
 //input user (start address) (nada )
 
 //input user (program data) (nada)
@@ -25,32 +26,23 @@ map<int, int>memory_address_values;
 //map memory <int (address (2000) , int (value , -7)>
 
 
-string tobinary(string value) //not functioning 
+string tobinary(string num)
 {
-	int num = stoi(value);
-	int r, i = 0, s = 0, bin = 0;
-	int arr[32] = { 0 };
-	while (num != 0)
-	{
-		r = num % 2;
-		arr[i++] = r;
-		num /= 2;
+	int n = stoi(num);
+	vector<string> bin;
+	string binary = "0";
+	for (int i = 31; i >= 0; i--) {
+		int k = n >> i;
+		if (k & 1)
+			bin.push_back("1");
+		else
+			bin.push_back("0");
 	}
-	for (int j = i - 1; j >= 0; j--)
-	{
-		arr[s] = arr[j];
-		s++;
-	}
-	for (int i = 0; i > 32; i++) {
-		int val = 1;
-		for (int j = 0; j < i; j++) {
-			val *= 10;
-		}
-		bin += arr[i] * val;
-	}
-	return to_string(bin);
+	for (int i = 0; i < bin.size(); i++)
+		binary += bin[i];
 
-} 
+	return binary;
+}
 string tohexa(string value) 
 {
 	int num= stoi(value);
@@ -73,7 +65,7 @@ string tohexa(string value)
 
 	// check if num is 0 and directly return "0"
 	if (!num) {
-		return "0";
+		return "00000000";
 	}
 	// if num>0, use normal technique as
 	// discussed in other post
@@ -105,6 +97,41 @@ string tohexa(string value)
 	return res;
 
 } 
+string Twoscomplement(string str)
+{
+	int n = str.length();
+	int i;
+	for (i = n - 1; i >= 0; i--)
+		if (str[i] == '1')
+			break;
+	if (i == -1)
+		return '1' + str;
+	for (int k = i - 1; k >= 0; k--)
+	{
+		if (str[k] == '1')
+			str[k] = '0';
+		else
+			str[k] = '1';
+	}
+	return str;;
+}
+int binaryToDecimal(string n)
+{
+	string num = n;
+	int dec_value = 0;
+
+	// Initializing base value to 1, i.e 2^0
+	int base = 1;
+
+	int len = num.length();
+	for (int i = len - 1; i >= 0; i--) {
+		if (num[i] == '1')
+			dec_value += base;
+		base = base * 2;
+	}
+
+	return dec_value;
+}
 void printMap()
 {
 	cout << "Register" << "   " << "Decimal" << "		" << "Binary" << "		" << "Hexadecimal" << endl;
@@ -353,6 +380,161 @@ void SLTIU(string rd, string rs1, string imm)
 	it->second[2] = "0x" + tohexa(to_string(temp3));
 	printMap();
 }
+void SLL(string rd, string rs1, string rs2)
+{
+
+	auto it = registers.find(rs1);
+	int temp1 = stoi(it->second[0]);
+	it = registers.find(rs2);
+	int temp2 = stoi(it->second[0]);
+	int temp3, temp4;
+	temp4 = pow(2.0, temp2);
+	temp3 = temp1 * temp4;
+	it = registers.find(rd);
+	it->second[0] = to_string(temp3);
+	it->second[1] = "0b" + tobinary(to_string(temp3));
+	it->second[2] = "0x" + tohexa(to_string(temp3));
+	printMap();
+}
+void SLLI(string rd, string rs1, string imm)
+{
+
+	auto it = registers.find(rs1);
+	int temp1 = stoi(it->second[0]);
+	int temp2 = stoi(imm);
+	int temp3, temp4;
+	temp4 = pow(2.0, temp2);
+	temp3 = temp1 * temp4;
+	it = registers.find(rd);
+	it->second[0] = to_string(temp3);
+	it->second[1] = "0b" + tobinary(to_string(temp3));
+	it->second[2] = "0x" + tohexa(to_string(temp3));
+	printMap();
+}
+void SRL(string rd, string rs1, string rs2)
+{
+
+	auto it = registers.find(rs1);
+	int temp1 = stoi(it->second[0]);
+	it = registers.find(rs2);
+	int temp2 = stoi(it->second[0]);
+	int temp3, temp4;
+	temp4 = pow(2.0, temp2);
+	temp3 = temp1 / temp4;
+	it = registers.find(rd);
+	it->second[0] = to_string(temp3);
+	it->second[1] = "0b" + tobinary(to_string(temp3));
+	it->second[2] = "0x" + tohexa(to_string(temp3));
+	printMap();
+}
+void SRLI(string rd, string rs1, string imm)
+{
+
+	auto it = registers.find(rs1);
+	int temp1 = stoi(it->second[0]);
+	int temp2 = stoi(imm);
+	int temp3, temp4;
+	temp4 = pow(2.0, temp2);
+	temp3 = temp1 / temp4;
+	it = registers.find(rd);
+	it->second[0] = to_string(temp3);
+	it->second[1] = "0b" + tobinary(to_string(temp3));
+	it->second[2] = "0x" + tohexa(to_string(temp3));
+	printMap();
+}
+void SRA(string rd, string rs1, string rs2)
+{
+
+	auto it = registers.find(rs1);
+	int temp1 = stoi(it->second[0]);
+	it = registers.find(rs2);
+	int temp2 = stoi(it->second[0]);
+	int temp3, temp4;
+	string negative, binarynum;
+	temp4 = pow(2.0, temp2);
+	temp3 = temp1 / temp4;
+	it = registers.find(rd);
+	if (temp3 < 0)
+	{
+		negative = to_string(temp4);
+		negative.erase(0, 1);
+		it->second[0] = to_string(temp3);
+		binarynum = tobinary(negative);
+		it->second[1] = "0b" + Twoscomplement(binarynum);
+		it->second[2] = "0x" + tohexa(to_string(temp3));
+	}
+	else
+	{
+		it->second[0] = to_string(temp3);
+		it->second[1] = "0b" + tobinary(to_string(temp3));
+		it->second[2] = "0x" + tohexa(to_string(temp3));
+	}
+	printMap();
+}
+void SRAI(string rd, string rs1, string imm)
+{
+
+	auto it = registers.find(rs1);
+	int temp1 = stoi(it->second[0]);
+	it = registers.find(imm);
+	int temp2 = stoi(it->second[0]);
+	int temp3, temp4;
+	string negative;
+	temp4 = pow(2.0, temp2);
+	temp3 = temp1 / temp4;
+	it = registers.find(rd);
+	if (temp3 < 0)
+	{
+		negative = to_string(temp4);
+		negative.erase(0, 1);
+		it->second[0] = to_string(temp3);
+		it->second[1] = "0b" + Twoscomplement(negative);
+		it->second[2] = "0x" + tohexa(to_string(temp3));
+	}
+	else
+	{
+		it->second[0] = to_string(temp3);
+		it->second[1] = "0b" + tobinary(to_string(temp3));
+		it->second[2] = "0x" + tohexa(to_string(temp3));
+	}
+	printMap();
+}
+void Sw(string source, string destination, string offset) { // sw x9,0(x2)
+	int source_value, destination_value;
+	for (auto i : registers) {
+		if (i.first == source)
+		{
+			source_value = stoi(i.second[0]);
+			break;
+		}
+
+	}
+	for (auto i : registers) {
+		if (i.first == destination)
+		{
+			destination_value = stoi(i.second[0]);
+			break;
+		}
+
+	}
+	destination_value = destination_value + stoi(offset);
+	map<int, int>::iterator i = memory_address_values.find(destination_value);
+
+	if (i == memory_address_values.end())
+		memory_address_values.insert({ destination_value,source_value });
+	else { i->second = source_value; }
+
+	printMap();
+}
+void LUI(string rd, string constant) {
+	string new_value;
+	int value = (((1 << 20) - 1) & (stoi(constant) >> (1 - 1)));
+	value = stoi(tobinary(to_string(value)));
+	new_value = to_string(value) + "000000000000";
+	long long temp = binaryToDecimal(new_value);
+	auto it = registers.find(rd);
+	it->second[0] = to_string(temp);
+}
 int main()
 {
 	string input_file_name, program_file_name;
@@ -398,13 +580,16 @@ int main()
 	address_file.close();
 
 	//generate each instruction
-	for (auto it = insta_addresses.begin(); it != insta_addresses.end(); it++)
+	auto it = insta_addresses.begin();
+	
+	while (it != insta_addresses.end())
 	{
 		cout << endl;
 		cout << "Address Number : " << it->first << endl;
 		string line = it->second;
 		stringstream s(line);
 		getline(s, instruction, ' ');
+		address = it->first + 4;
 
 
 		if (instruction == "ADD")
@@ -521,6 +706,121 @@ int main()
 		SLTIU(rd, rs1, imm);
 
 		}
+		else if (instruction == "SLL")
+		{
+		string rd, rs1, rs2;
+		getline(s, rd, ',');
+		getline(s, rs1, ',');
+		getline(s, rs2);
+		SLL(rd, rs1, rs2);
+		}
+		else if (instruction == "SRL")
+		{
+		string rd, rs1, rs2;
+		getline(s, rd, ',');
+		getline(s, rs1, ',');
+		getline(s, rs2);
+		SRL(rd, rs1, rs2);
+		}
+		else if (instruction == "SRA")
+		{
+		string rd, rs1, rs2;
+		getline(s, rd, ',');
+		getline(s, rs1, ',');
+		getline(s, rs2);
+		SRA(rd, rs1, rs2);
+		}
+		else if (instruction == "SLLI")
+		{
+		string rd, rs1, imm;
+		getline(s, rd, ',');
+		getline(s, rs1, ',');
+		getline(s, imm);
+		SLLI(rd, rs1, imm);
+		}
+		else if (instruction == "SRLI")
+		{
+		string rd, rs1, imm;
+		getline(s, rd, ',');
+		getline(s, rs1, ',');
+		getline(s, imm);
+		SRLI(rd, rs1, imm);
+		}
+		else if (instruction == "SRAI")
+		{
+		string rd, rs1, imm;
+		getline(s, rd, ',');
+		getline(s, rs1, ',');
+		getline(s, imm);
+		SRAI(rd, rs1, imm);
+		}
+		else if (instruction == "BNE")
+		{
+		string rs1, rs2, imm;
+		getline(s, rs1, ',');
+		getline(s, rs2, ',');
+		getline(s, imm);
+		auto it1 = registers.find(rs1);
+		int temp1 = stoi(it1->second[0]);
+		it1 = registers.find(rs2);
+		int temp2 = stoi(it1->second[0]);
+		if (temp1 != temp2)
+			address = it->first + stoi(imm);
+		printMap();
+        }
+		else if (instruction == "BEQ")
+		{
+		string rs1, rs2, imm;
+		getline(s, rs1, ',');
+		getline(s, rs2, ',');
+		getline(s, imm);
+		auto it1 = registers.find(rs1);
+		int temp1 = stoi(it1->second[0]);
+		it1 = registers.find(rs2);
+		int temp2 = stoi(it1->second[0]);
+		if (temp1 == temp2)
+			address = it->first + stoi(imm);
+		printMap();
+ }
+		else if (instruction == "BLT")
+		{
+		string rs1, rs2, imm;
+		getline(s, rs1, ',');
+		getline(s, rs2, ',');
+		getline(s, imm);
+		auto it1 = registers.find(rs1);
+		int temp1 = stoi(it1->second[0]);
+		it1 = registers.find(rs2);
+		int temp2 = stoi(it1->second[0]);
+		if (temp1 < temp2)
+			address = it->first + stoi(imm);
+		printMap();
+
+ }
+		else if (instruction == "BGE")
+		{
+		string rs1, rs2, imm;
+		getline(s, rs1, ',');
+		getline(s, rs2, ',');
+		getline(s, imm);
+		auto it1 = registers.find(rs1);
+		int temp1 = stoi(it1->second[0]);
+		it1 = registers.find(rs2);
+		int temp2 = stoi(it1->second[0]);
+		if (temp1 > temp2)
+			address = it->first + stoi(imm);
+		printMap();
+
+ }
+		else if (instruction == "SW") 
+{
+string source, destination, offset;
+getline(s, destination, ',');
+getline(s, offset, '(');
+getline(s, source, ')');
+Sw(source, destination, offset);
+
+}
 		else if (instruction == "LW")
 		{
 			string source, destination, offset;
@@ -530,6 +830,14 @@ int main()
 			lw(source, destination, offset);
 
 		}
+		else if (instruction == "LUI")
+		{
+		string ra,imm;
+		getline(s, ra, ',');
+		getline(s, imm);
+		LUI(ra,imm);
+
+		}//void LUI(string rd, string constant)
 		else if (instruction == "FENCE" || instruction == "ECALL" || instruction == "EBREAK")
 			return 0;
 		else
@@ -538,11 +846,8 @@ int main()
 			return 0;
 		}
 
-
-		//loop on each line 
-
-		//instruction -> call function 
-
+ 
+		it = insta_addresses.find(address);
 	}
 
 	return 0;
