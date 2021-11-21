@@ -10,3 +10,4 @@ ANDI x5,x7,-20
 ORI x6,x6,10
 ADDI x31,x0,1000
 LW x28,4(x31)
+SW x31,0(x28)
