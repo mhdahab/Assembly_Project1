@@ -442,7 +442,7 @@ void SRA(string rd, string rs1, string rs2)
 	it = registers.find(rs2);
 	int temp2 = stoi(it->second[0]);
 	int temp3, temp4;
-	string negative;
+	string negative,binarynum;
 	temp4 = pow(2.0, temp2);
 	temp3 = temp1 / temp4;
 	it = registers.find(rd);
@@ -451,7 +451,8 @@ void SRA(string rd, string rs1, string rs2)
 		negative = to_string(temp4);
 		negative.erase(0, 1);
 		it->second[0] = to_string(temp3);
-		it->second[1] = "0b" + Twoscomplement(negative);
+		binarynum = tobinary(negative);
+		it->second[1] = "0b" + Twoscomplement(binarynum);
 		it->second[2] = "0x" + tohexa(to_string(temp3));
 	}
 	else
