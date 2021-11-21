@@ -26,7 +26,7 @@ map<int, int>memory_address_values;
 //map memory <int (address (2000) , int (value , -7)>
 
 
-string decToBinary(string num)
+string tobinary(string num)
 {
 	int n = stoi(num);
 	vector<string> bin;
