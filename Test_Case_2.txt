@@ -1,0 +1,45 @@
+ADDI x2,x2,2000
+ADDI x10,x0,1000
+ADDI x11,x0,8
+JAL x1,8
+EBREAK
+ADDI x18,x10,0
+ADDI x19,x11,0
+ADDI x8,x0,0
+ADDI x2,x2,-20
+SW x1,16(x2)
+SW x19,12(x2)
+SW x18,8(x2)
+SW x9,4(x2)
+SW x8,0(x2)
+BGE x8,x19,60
+ADDI x9,x8,-1
+BLT x9,x0,44
+SLLI x6,x9,2
+ADD x7,x18,x6
+LW x28,0(x7)
+LW x29,4(x7)
+BGE x29,x28,36
+ADDI x10,x18,0 
+ADDI x11,x9,0 
+JAL x1,48
+ADDI x9,x9,-1 
+BEQ x0,x0,-40
+ADDI x8,x8,1 
+BEQ x0,x0,-56 
+LW x8,0(x2) 
+LW x9,4(x2) 
+LW x18,8(x2) 
+LW x19,12(x2)
+LW x1,16(x2) 
+ADDI x2,x2,20 
+JALR x0,0(x1)
+SLLI x6,x11,2 
+ADD x6,x10,x6 
+LW x5,0(x6) 
+LW x7,4(x6) 
+SW x7,0(x6) 
+SW x5,4(x6) 
+JALR x0,0(x1) 
+
+ 
