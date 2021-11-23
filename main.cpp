@@ -60,39 +60,24 @@ string tohexa(string value)
 		}
 	}
 
-	// string to be returned
 	string res = "";
 
-	// check if num is 0 and directly return "0"
-	if (!num) {
+	if (!num) 
 		return "00000000";
-	}
-	// if num>0, use normal technique as
-	// discussed in other post
-	if (num > 0) {
-		while (num) {
-			res = m[num % 16] + res;
-			num /= 16;
-		}
 
+
+	while (num) 
+	{
+		res = m[num % 16] + res;
+		num /= 16;
+	}
+
+	if (stoi(value)>0)
 		while (res.length() != 8)
 			res = "0" + res;
-	}
-	// if num<0, we need to use the elaborated
-	// trick above, lets see this
-	else {
-		// store num in a u_int, size of u_it is greater,
-		// it will be positive since msb is 0
-		uint8_t n = num;
-
-		// use the same remainder technique.
-		while (n) {
-			res = m[n % 16] + res;
-			n /= 16;
-		}
+	else 
 		while (res.length() != 8)
 			res = "f" + res;
-	}
 
 	return res;
 
@@ -314,9 +299,9 @@ void SLTU(string rd, string rs1, string rs2)
 {
 
 	auto it = registers.find(rs1);
-	int temp1 = stoi(it->second[0]);
+	unsigned int temp1 = stoi(it->second[0]);
 	it = registers.find(rs2);
-	int temp2 = stoi(it->second[0]);
+	unsigned int temp2 = stoi(it->second[0]);
 	int temp3;
 	if (rs1 == "x0")
 	{
@@ -327,7 +312,7 @@ void SLTU(string rd, string rs1, string rs2)
 	}
 	else
 	{
-		if (abs(temp1) < abs(temp2))
+		if (temp1 < temp2)
 			temp3 = 1;
 		else
 			temp3 = 0;
@@ -357,8 +342,8 @@ void SLTI(string rd, string rs1, string imm)
 void SLTIU(string rd, string rs1, string imm)
 {
 	auto it = registers.find(rs1);
-	int temp1 = stoi(it->second[0]);
-	int temp2 = stoi(imm);
+	unsigned int temp1 = stoi(it->second[0]);
+	unsigned int temp2 = stoi(imm);
 	int temp3;
 	if (imm == "1")
 	{
@@ -369,7 +354,7 @@ void SLTIU(string rd, string rs1, string imm)
 	}
 	else
 	{
-		if (abs(temp1) < abs(temp2))
+		if (temp1 < temp2)
 			temp3 = 1;
 		else
 			temp3 = 0;
@@ -797,6 +782,21 @@ int main()
 		printMap();
 
  }
+		else if (instruction == "BLTU")
+		{
+		string rs1, rs2, imm;
+		getline(s, rs1, ',');
+		getline(s, rs2, ',');
+		getline(s, imm);
+		auto it1 = registers.find(rs1);
+		unsigned int temp1 = stoi(it1->second[0]);
+		it1 = registers.find(rs2);
+		unsigned int temp2 = stoi(it1->second[0]);
+		if (temp1 < temp2)
+			address = it->first + stoi(imm);
+		printMap();
+
+ }
 		else if (instruction == "BGE")
 		{
 		string rs1, rs2, imm;
@@ -810,6 +810,46 @@ int main()
 		if (temp1 > temp2)
 			address = it->first + stoi(imm);
 		printMap();
+
+ }
+		else if (instruction == "BGEU")
+		{
+		string rs1, rs2, imm;
+		getline(s, rs1, ',');
+		getline(s, rs2, ',');
+		getline(s, imm);
+		auto it1 = registers.find(rs1);
+		unsigned int temp1 = stoi(it1->second[0]);
+		it1 = registers.find(rs2);
+		unsigned int temp2 = stoi(it1->second[0]);
+		if (temp1 > temp2)
+			address = it->first + stoi(imm);
+		printMap();
+
+ }
+		else if (instruction == "JAL")
+		{
+		string ra, imm;
+		getline(s, ra, ',');
+		getline(s, imm);
+
+		auto it1 = registers.find(ra);
+		it1->second[0] = address;
+		address = it->first + stoi(imm);
+		
+		printMap();
+
+ }
+		else if (instruction == "JALR")
+		{
+		string zero, ra, offset;
+		getline(s, zero, ',');
+		getline(s, offset, '(');
+		getline(s, ra, ')');
+
+		auto it1 = registers.find(ra);
+		address = stoi(it1->second[0]) + stoi(offset);
+
 
  }
 		else if (instruction == "SW") 
