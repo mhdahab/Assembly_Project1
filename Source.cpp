@@ -29,10 +29,15 @@ map<int, int>memory_address_values;
 string tobinary(string num)
 {
 	int n = stoi(num);
+	int r;
 	vector<string> bin;
+	if (stoi(num) < 0)
+		num.erase(0, 1);
+	r = stoi(num);
 	string binary = "0";
+
 	for (int i = 31; i >= 0; i--) {
-		int k = n >> i;
+		int k = r >> i;
 		if (k & 1)
 			bin.push_back("1");
 		else
@@ -40,6 +45,23 @@ string tobinary(string num)
 	}
 	for (int i = 0; i < bin.size(); i++)
 		binary += bin[i];
+	if (n < 0)
+	{
+		int b = binary.length();
+		int i;
+		for (i = b - 1; i >= 0; i--)
+			if (binary[i] == '1')
+				break;
+		if (i == -1)
+			return '1' + binary;
+		for (int k = i - 1; k >= 0; k--)
+		{
+			if (binary[k] == '1')
+				binary[k] = '0';
+			else
+				binary[k] = '1';
+		}
+	}
 
 	return binary;
 }
@@ -96,24 +118,6 @@ string tohexa(string value)
 
 	return res;
 
-}
-string Twoscomplement(string str)
-{
-	int n = str.length();
-	int i;
-	for (i = n - 1; i >= 0; i--)
-		if (str[i] == '1')
-			break;
-	if (i == -1)
-		return '1' + str;
-	for (int k = i - 1; k >= 0; k--)
-	{
-		if (str[k] == '1')
-			str[k] = '0';
-		else
-			str[k] = '1';
-	}
-	return str;;
 }
 void printMap()
 {
@@ -398,7 +402,7 @@ void SRL(string rd, string rs1, string rs2)
 {
 
 	auto it = registers.find(rs1);
-	int temp1 = stoi(it->second[0]);
+	unsigned int temp1 = stoi(it->second[0]);
 	it = registers.find(rs2);
 	int temp2 = stoi(it->second[0]);
 	int temp3, temp4;
@@ -414,7 +418,7 @@ void SRLI(string rd, string rs1, string imm)
 {
 
 	auto it = registers.find(rs1);
-	int temp1 = stoi(it->second[0]);
+	unsigned int temp1 = stoi(it->second[0]);
 	int temp2 = stoi(imm);
 	int temp3, temp4;
 	temp4 = pow(2.0, temp2);
@@ -432,26 +436,13 @@ void SRA(string rd, string rs1, string rs2)
 	int temp1 = stoi(it->second[0]);
 	it = registers.find(rs2);
 	int temp2 = stoi(it->second[0]);
-	int temp3, temp4;
-	string negative,binarynum;
-	temp4 = pow(2.0, temp2);
-	temp3 = temp1 / temp4;
+	int temp3;
+	string binarynum;
+	temp3 = temp1 >> temp2;
 	it = registers.find(rd);
-	if (temp3 < 0)
-	{
-		negative = to_string(temp4);
-		negative.erase(0, 1);
-		it->second[0] = to_string(temp3);
-		binarynum = tobinary(negative);
-		it->second[1] = "0b" + Twoscomplement(binarynum);
-		it->second[2] = "0x" + tohexa(to_string(temp3));
-	}
-	else
-	{
-		it->second[0] = to_string(temp3);
-		it->second[1] = "0b" + tobinary(to_string(temp3));
-		it->second[2] = "0x" + tohexa(to_string(temp3));
-	}
+	it->second[0] = to_string(temp3);
+	it->second[1] = "0b" + tobinary(to_string(temp3));
+	it->second[2] = "0x" + tohexa(to_string(temp3));
 	printMap();
 }
 void SRAI(string rd, string rs1, string imm)
@@ -461,25 +452,12 @@ void SRAI(string rd, string rs1, string imm)
 	int temp1 = stoi(it->second[0]);
 	it = registers.find(imm);
 	int temp2 = stoi(it->second[0]);
-	int temp3, temp4;
-	string negative;
-	temp4 = pow(2.0, temp2);
-	temp3 = temp1 / temp4;
+	int temp3;
+	temp3 = temp1 >> temp2;
 	it = registers.find(rd);
-	if (temp3 < 0)
-	{
-		negative = to_string(temp4);
-		negative.erase(0, 1);
-		it->second[0] = to_string(temp3);
-		it->second[1] = "0b" + Twoscomplement(negative);
-		it->second[2] = "0x" + tohexa(to_string(temp3));
-	}
-	else
-	{
-		it->second[0] = to_string(temp3);
-		it->second[1] = "0b" + tobinary(to_string(temp3));
-		it->second[2] = "0x" + tohexa(to_string(temp3));
-	}
+	it->second[0] = to_string(temp3);
+	it->second[1] = "0b" + tobinary(to_string(temp3));
+	it->second[2] = "0x" + tohexa(to_string(temp3));
 	printMap();
 }
 int main()
@@ -652,51 +630,51 @@ int main()
 		}
 		else if (instruction == "SLL")
 		{
-		string rd, rs1, rs2;
-		getline(s, rd, ',');
-		getline(s, rs1, ',');
-		getline(s, rs2);
-		SLL(rd, rs1, rs2);
+			string rd, rs1, rs2;
+			getline(s, rd, ',');
+			getline(s, rs1, ',');
+			getline(s, rs2);
+			SLL(rd, rs1, rs2);
 		}
 		else if (instruction == "SRL")
 		{
-		string rd, rs1, rs2;
-		getline(s, rd, ',');
-		getline(s, rs1, ',');
-		getline(s, rs2);
-		SRL(rd, rs1, rs2);
+			string rd, rs1, rs2;
+			getline(s, rd, ',');
+			getline(s, rs1, ',');
+			getline(s, rs2);
+			SRL(rd, rs1, rs2);
 		}
 		else if (instruction == "SRA")
 		{
-		string rd, rs1, rs2;
-		getline(s, rd, ',');
-		getline(s, rs1, ',');
-		getline(s, rs2);
-		SRA(rd, rs1, rs2);
+			string rd, rs1, rs2;
+			getline(s, rd, ',');
+			getline(s, rs1, ',');
+			getline(s, rs2);
+			SRA(rd, rs1, rs2);
 		}
 		else if (instruction == "SLLI")
 		{
-		string rd, rs1, imm;
-		getline(s, rd, ',');
-		getline(s, rs1, ',');
-		getline(s, imm);
-		SLLI(rd, rs1, imm);
+			string rd, rs1, imm;
+			getline(s, rd, ',');
+			getline(s, rs1, ',');
+			getline(s, imm);
+			SLLI(rd, rs1, imm);
 		}
 		else if (instruction == "SRLI")
 		{
-		string rd, rs1, imm;
-		getline(s, rd, ',');
-		getline(s, rs1, ',');
-		getline(s, imm);
-		SRLI(rd, rs1, imm);
+			string rd, rs1, imm;
+			getline(s, rd, ',');
+			getline(s, rs1, ',');
+			getline(s, imm);
+			SRLI(rd, rs1, imm);
 		}
 		else if (instruction == "SRAI")
 		{
-		string rd, rs1, imm;
-		getline(s, rd, ',');
-		getline(s, rs1, ',');
-		getline(s, imm);
-		SRAI(rd, rs1, imm);
+			string rd, rs1, imm;
+			getline(s, rd, ',');
+			getline(s, rs1, ',');
+			getline(s, imm);
+			SRAI(rd, rs1, imm);
 		}
 		else if (instruction == "LW")
 		{
