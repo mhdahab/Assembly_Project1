@@ -1,0 +1,212 @@
+void SH(string source, string destination, string offset) { // sw x9,0(x2)
+	int source_value, destination_value;
+	for (auto i : registers) {
+		if (i.first == source)
+		{
+			source_value = stoi(i.second[0]);
+			break;
+		}
+
+	}
+	source_value = source_value & ((1 << 16) - 1); 
+	for (auto i : registers) {
+		if (i.first == destination)
+		{
+			destination_value = stoi(i.second[0]);
+			break;
+		}
+
+	}
+	offset = to_string(stoi(offset) / 4);
+	destination_value = destination_value + stoi(offset)*4;
+
+	map<int, int>::iterator i = memory_address_values.find(destination_value);
+
+	if (i == memory_address_values.end())
+		memory_address_values.insert({ destination_value,source_value });
+	else { 
+		if(i->second==0) i->second = source_value; 
+		else {
+			int position = stoi(offset) % 4;
+			i->second = i->second  & ((1 << position*8) - 1);
+			string binary_value = tobinary(to_string(i->second));
+			binary_value += i->second;
+			i->second = binaryToDecimal(binary_value);
+		}
+	
+	}
+
+	printMap();
+}
+void SB(string source, string destination, string offset) { // sw x9,0(x2)
+	int source_value, destination_value;
+	for (auto i : registers) {
+		if (i.first == source)
+		{
+			source_value = stoi(i.second[0]);
+			break;
+		}
+
+	}
+	source_value = source_value & ((1 << 8) - 1);
+	for (auto i : registers) {
+		if (i.first == destination)
+		{
+			destination_value = stoi(i.second[0]);
+			break;
+		}
+
+	}
+	offset = to_string(stoi(offset) / 4);
+	destination_value = destination_value + stoi(offset) * 4;
+
+	map<int, int>::iterator i = memory_address_values.find(destination_value);
+
+	if (i == memory_address_values.end())
+		memory_address_values.insert({ destination_value,source_value });
+	else {
+		if (i->second == 0) i->second = source_value;
+		else {
+			int position = stoi(offset) % 4;
+			i->second = i->second & ((1 << position * 8) - 1);
+			string binary_value = tobinary(to_string(i->second));
+			binary_value += i->second;
+			i->second = binaryToDecimal(binary_value);
+		}
+
+	}
+
+	printMap();
+}
+void LH(string source, string destination, string offset) {
+	int resgister_address_value;
+	for (auto i : registers) {
+		if (i.first == source)
+		{
+			resgister_address_value = stoi(i.second[0]);
+			break;
+		}
+
+	}
+	int destination_address_value = stoi(offset) + resgister_address_value;
+	int value;
+	
+
+
+	for (auto i : memory_address_values) {
+		if (i.first == destination_address_value)
+		{
+			value = i.second;
+			break;
+		}
+	}
+	value = value & ((1 << 16) - 1);
+	int msb = 1 << (BITS - 1);
+	if (value & msb) msb = 1;
+	else msb = 0;
+	string binary_value;
+	for (int i = 0; i < 32 - tobinary(to_string(value)).size(); i++)
+		binary_value += msb;
+	value = binaryToDecimal(binary_value);
+	auto it = registers.find(destination);
+	it->second[0] = to_string(value);
+	printMap();
+}
+void LB(string source, string destination, string offset) {
+	int resgister_address_value;
+	for (auto i : registers) {
+		if (i.first == source)
+		{
+			resgister_address_value = stoi(i.second[0]);
+			break;
+		}
+
+	}
+	int destination_address_value = stoi(offset) + resgister_address_value;
+	int value;
+
+
+
+	for (auto i : memory_address_values) {
+		if (i.first == destination_address_value)
+		{
+			value = i.second;
+			break;
+		}
+	}
+	value = value & ((1 << 8) - 1);
+	int msb = 1 << (BITS - 1);
+	if (value & msb) msb = 1;
+	else msb = 0;
+	string binary_value;
+	for (int i = 0; i < 32 - tobinary(to_string(value)).size(); i++)
+		binary_value += msb;
+	value = binaryToDecimal(binary_value);
+	auto it = registers.find(destination);
+	it->second[0] = to_string(value);
+	printMap();
+}
+void LBU(string source, string destination, string offset) {
+	int resgister_address_value;
+	for (auto i : registers) {
+		if (i.first == source)
+		{
+			resgister_address_value = stoi(i.second[0]);
+			break;
+		}
+
+	}
+	int destination_address_value = stoi(offset) + resgister_address_value;
+	int value;
+
+
+
+	for (auto i : memory_address_values) {
+		if (i.first == destination_address_value)
+		{
+			value = i.second;
+			break;
+		}
+	}
+	value = value & ((1 << 8) - 1);
+	
+	string binary_value;
+	for (int i = 0; i < 32 - tobinary(to_string(value)).size(); i++)
+		binary_value += "0";
+	value = binaryToDecimal(binary_value);
+	auto it = registers.find(destination);
+	it->second[0] = to_string(value);
+	printMap();
+}
+void LHU(string source, string destination, string offset) {
+	int resgister_address_value;
+	for (auto i : registers) {
+		if (i.first == source)
+		{
+			resgister_address_value = stoi(i.second[0]);
+			break;
+		}
+
+	}
+	int destination_address_value = stoi(offset) + resgister_address_value;
+	int value;
+
+
+
+	for (auto i : memory_address_values) {
+		if (i.first == destination_address_value)
+		{
+			value = i.second;
+			break;
+		}
+	}
+	value = value & ((1 << 16) - 1);
+	
+	string binary_value;
+	for (int i = 0; i < 32 - tobinary(to_string(value)).size(); i++)
+		binary_value += "0";
+	value = binaryToDecimal(binary_value);
+	auto it = registers.find(destination);
+	it->second[0] = to_string(value);
+	printMap();
+}
