@@ -460,6 +460,32 @@ void SRAI(string rd, string rs1, string imm)
 	it->second[2] = "0x" + tohexa(to_string(temp3));
 	printMap();
 }
+void MULT (string rd, string rs1, string rs2)
+{
+	auto it = registers.find(rs1);
+	int temp1 = stoi(it->second[0]);
+	it = registers.find(rs2);
+	int temp2 = stoi(it->second[0]);
+	int temp3 = temp2 * temp1;
+	it = registers.find(rd);
+	it->second[0] = to_string(temp3);
+	it->second[1] = "0b" + tobinary(to_string(temp3));
+	it->second[2] = "0x" + tohexa(to_string(temp3));
+	printMap();
+}
+void DIV (string rd, string rs1, string rs2)
+{
+	auto it = registers.find(rs1);
+	int temp1 = stoi(it->second[0]);
+	it = registers.find(rs2);
+	int temp2 = stoi(it->second[0]);
+	int temp3 = temp2 / temp1;
+	it = registers.find(rd);
+	it->second[0] = to_string(temp3);
+	it->second[1] = "0b" + tobinary(to_string(temp3));
+	it->second[2] = "0x" + tohexa(to_string(temp3));
+	printMap();
+}
 int main()
 {
 	string input_file_name, program_file_name;
@@ -675,6 +701,22 @@ int main()
 			getline(s, rs1, ',');
 			getline(s, imm);
 			SRAI(rd, rs1, imm);
+		}
+		else if (instruction == "DIV")
+		{
+		string rd, rs1, rs2;
+		getline(s, rd, ',');
+		getline(s, rs1, ',');
+		getline(s, rs2);
+		DIV(rd, rs1, rs2);
+		}
+		else if (instruction == "MULT")
+		{
+		string rd, rs1, rs2;
+		getline(s, rd, ',');
+		getline(s, rs1, ',');
+		getline(s, rs2);
+		MULT (rd, rs1, rs2);
 		}
 		else if (instruction == "LW")
 		{
