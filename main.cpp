@@ -11,7 +11,7 @@ using namespace std;
 
 map<string, vector<string>> registers;
 multimap<int, string>insta_addresses;
-map<int, int>memory_address_values;
+map<int, vector<string>>memory_address_values;
 
 string tobinary(string num)
 {
@@ -105,7 +105,8 @@ int binaryToDecimal(string n)
 }
 void printMap()
 {
-	cout << "Register" << "   " << "Decimal" << "			" << "Binary" << "                            " << "Hexadecimal" << endl;
+	cout << "Regisiters Values : " << endl;
+	cout << "Register" << "   " << "Decimal" << "			" << "Binary" << "                           " << "Hexadecimal" << endl;
 	for (int i = 0; i < 32; i++)
 	{
 		auto it = registers.find("x" + to_string(i));
@@ -113,15 +114,16 @@ void printMap()
 		cout << it->first << " :		" << it->second[0] <<"		" << it->second[1] << "	" << it->second[2] << endl;
 	}
 
-	cout << "Memory Address" << "   " << "Value" << endl;
+	cout << "Memory Values : " << endl;
+	cout << "Memory Address" << "   " << "Decimal" << "			" << "Binary" << "                       " << "Hexadecimal" << endl;
 	for (auto it=memory_address_values.begin() ; it!=memory_address_values.end() ;it++)
 	{
 
-		cout << it->first << " :		" << it->second << endl;
+		cout << it->first << " :		" << it->second[0] << "		" << it->second[1] << "	" << it->second[2] << endl;
 	}
 
 
-	system("pause");
+	//system("pause");
 	
 }
 void Add(string rd, string rs1, string rs2)
@@ -191,7 +193,6 @@ void xoring(string rd, string rs1, string rs2)
 }
 void ADDI(string rd, string rs1, string imm) 
 {
-	cout << "immediate :" << imm<<endl;
 	auto it = registers.find(rs1);
 	int temp1 = stoi(it->second[0]);
 	int temp2 = stoi(imm);
@@ -257,7 +258,7 @@ void lw(string source, string destination, string offset) {
 	for (auto i : memory_address_values) {
 		if (i.first == destination_address_value)
 		{
-			value = i.second;
+			value =stoi( i.second[0]);
 			break;
 		}
 	}
@@ -356,7 +357,7 @@ void SLL(string rd, string rs1, string rs2)
 {
 
 	auto it = registers.find(rs1);
-	int temp1 = stoi(it->second[0]);
+	unsigned int temp1 = stoi(it->second[0]);
 	it = registers.find(rs2);
 	int temp2 = stoi(it->second[0]);
 	int temp3, temp4;
@@ -372,7 +373,7 @@ void SLLI(string rd, string rs1, string imm)
 {
 
 	auto it = registers.find(rs1);
-	int temp1 = stoi(it->second[0]);
+	unsigned int temp1 = stoi(it->second[0]);
 	int temp2 = stoi(imm);
 	int temp3, temp4;
 	temp4 = pow(2.0, temp2);
@@ -464,11 +465,15 @@ void Sw(string source, string destination, string offset) { // sw x9,0(x2)
 
 	}
 	destination_value = destination_value + stoi(offset);
-	map<int, int>::iterator i = memory_address_values.find(destination_value);
+	map<int, vector<string>>::iterator i = memory_address_values.find(destination_value);
 
 	if (i == memory_address_values.end())
-		memory_address_values.insert({ destination_value,source_value });
-	else { i->second = source_value; }
+		memory_address_values.insert({ destination_value,{to_string(source_value),"0b"+tobinary(to_string(source_value)),"0x"+tohexa(to_string(source_value))}});
+	else { i->second[0] = to_string(source_value);
+	i->second[1] =tobinary( to_string(source_value));
+	i->second[2] = tohexa( to_string(source_value));
+
+	}
 
 	printMap();
 }
@@ -503,18 +508,19 @@ void SH(string source, string destination, string offset) { // sw x9,0(x2)
 	offset = to_string(stoi(offset) / 4);
 	destination_value = destination_value + stoi(offset) * 4;
 
-	map<int, int>::iterator i = memory_address_values.find(destination_value);
-
+	map<int, vector<string>>::iterator i = memory_address_values.find(destination_value);
 	if (i == memory_address_values.end())
-		memory_address_values.insert({ destination_value,source_value });
+		memory_address_values.insert({ destination_value,{to_string(source_value),"0b"+tobinary(to_string(source_value)),"0x"+tohexa(to_string(source_value))}});
 	else {
-		if (i->second == 0) i->second = source_value;
+		if (i->second[0] == "0") i->second[0] = source_value;
 		else {
 			int position = stoi(offset) % 4;
-			i->second = i->second & ((1 << position * 8) - 1);
-			string binary_value = tobinary(to_string(i->second));
-			binary_value += i->second;
-			i->second = binaryToDecimal(binary_value);
+			i->second[0] = stoi(i->second[0]) & ((1 << position * 8) - 1);
+			string binary_value = tobinary(i->second[0]);
+			binary_value += stoi(i->second[0]);
+			i->second[0] = to_string(binaryToDecimal(binary_value));
+			i->second[1] = binary_value;
+			i->second[1] = tohexa(i->second[0]);
 		}
 
 	}
@@ -543,22 +549,22 @@ void SB(string source, string destination, string offset) { // sw x9,0(x2)
 	offset = to_string(stoi(offset) / 4);
 	destination_value = destination_value + stoi(offset) * 4;
 
-	map<int, int>::iterator i = memory_address_values.find(destination_value);
+	map<int, vector<string>>::iterator i = memory_address_values.find(destination_value);
 
 	if (i == memory_address_values.end())
-		memory_address_values.insert({ destination_value,source_value });
+		memory_address_values.insert({ destination_value,{to_string(source_value),"0b"+tobinary(to_string(source_value)),"0x"+tohexa(to_string(source_value))}});
 	else {
-		if (i->second == 0) i->second = source_value;
+		if (i->second[0] == "0") i->second[0] = source_value;
 		else {
 			int position = stoi(offset) % 4;
-			i->second = i->second & ((1 << position * 8) - 1);
-			string binary_value = tobinary(to_string(i->second));
-			binary_value += i->second;
-			i->second = binaryToDecimal(binary_value);
+			i->second[0] = stoi(i->second[0]) & ((1 << position * 8) - 1);
+			string binary_value = tobinary(i->second[0]);
+			binary_value += stoi(i->second[0]);
+			i->second[0] = to_string(binaryToDecimal(binary_value));
+			i->second[1] = binary_value;
+			i->second[1] = tohexa(i->second[0]);
 		}
-
 	}
-
 	printMap();
 }
 void LH(string source, string destination, string offset) {
@@ -579,7 +585,7 @@ void LH(string source, string destination, string offset) {
 	for (auto i : memory_address_values) {
 		if (i.first == destination_address_value)
 		{
-			value = i.second;
+			value = stoi( i.second[0]);
 			break;
 		}
 	}
@@ -613,7 +619,7 @@ void LB(string source, string destination, string offset) {
 	for (auto i : memory_address_values) {
 		if (i.first == destination_address_value)
 		{
-			value = i.second;
+			value = stoi(i.second[0]);
 			break;
 		}
 	}
@@ -647,7 +653,7 @@ void LBU(string source, string destination, string offset) {
 	for (auto i : memory_address_values) {
 		if (i.first == destination_address_value)
 		{
-			value = i.second;
+			value = stoi(i.second[0]);
 			break;
 		}
 	}
@@ -679,7 +685,7 @@ void LHU(string source, string destination, string offset) {
 	for (auto i : memory_address_values) {
 		if (i.first == destination_address_value)
 		{
-			value = i.second;
+			value = stoi(i.second[0]);
 			break;
 		}
 	}
@@ -741,7 +747,7 @@ int main()
 		stringstream s(line);
 		getline(s, address, ',');
 		getline(s, value, ',');
-		memory_address_values.insert({ stoi(address),stoi(value) });
+		memory_address_values.insert({ stoi(address),{value,"0b"+tobinary(value),"0x"+tohexa(value)}});
 	}
 	address_file.close();
 
@@ -1171,7 +1177,7 @@ int main()
 		getline(s, ra, ')');
 
 		auto it1 = registers.find(ra);
-		address = stoi(it1->second[0]) + stoi(offset);
+		address = stoi(it1->second[0]) + stoi(offset) +4;
 
 
  }
@@ -1315,7 +1321,14 @@ int main()
 
 		}
 		else if (instruction == "FENCE" || instruction == "ECALL" || instruction == "EBREAK")
-			return 0;
+		{
+		cout << " Halting Instruction Detected" << endl;
+
+		return 0;
+
+
+ }
+			
 		else
 		{
 			cout << "Invalid Input : " << line << endl;
