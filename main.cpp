@@ -115,7 +115,7 @@ void printMap()
 	}
 
 	cout << "Memory Values : " << endl;
-	cout << "Memory Address" << "   " << "Decimal" << "			" << "Binary" << "                       " << "Hexadecimal" << endl;
+	cout << "Memory Address" << "   " << "Decimal" << "		" << "Binary" << "                        " << "Hexadecimal" << endl;
 	for (auto it=memory_address_values.begin() ; it!=memory_address_values.end() ;it++)
 	{
 
@@ -123,7 +123,7 @@ void printMap()
 	}
 
 
-	//system("pause");
+	system("pause");
 	
 }
 void Add(string rd, string rs1, string rs2)
