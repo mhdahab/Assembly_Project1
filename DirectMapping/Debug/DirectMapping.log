@@ -1,5 +1,7 @@
 ﻿  main.cpp
-C:\Users\dahab\OneDrive\Desktop\Fall 2021\DirectMapping\main.cpp(17,25): warning C4018: '<': signed/unsigned mismatch
-C:\Users\dahab\OneDrive\Desktop\Fall 2021\DirectMapping\main.cpp(42,15): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\dahab\OneDrive\Desktop\Fall 2021\DirectMapping\main.cpp(44,16): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\dahab\OneDrive\Desktop\Fall 2021\DirectMapping\main.cpp(26,25): warning C4018: '<': signed/unsigned mismatch
+C:\Users\dahab\OneDrive\Desktop\Fall 2021\DirectMapping\main.cpp(90,15): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\dahab\OneDrive\Desktop\Fall 2021\DirectMapping\main.cpp(92,21): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\dahab\OneDrive\Desktop\Fall 2021\DirectMapping\main.cpp(97,15): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\dahab\OneDrive\Desktop\Fall 2021\DirectMapping\main.cpp(99,21): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
   DirectMapping.vcxproj -> C:\Users\dahab\OneDrive\Desktop\Fall 2021\DirectMapping\Debug\DirectMapping.exe
